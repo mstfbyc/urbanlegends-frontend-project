@@ -3,10 +3,15 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import UserSignupPage from './pages/UserSignupPage'
+import LoginPage from "./pages/LoginPage";
+import LanguageSelector from "./components/LanguageSelector";
+import './i18n'
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+      <LoginPage />
+      <LanguageSelector/>
   </React.StrictMode>,
   document.getElementById('root')
 );
