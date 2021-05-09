@@ -5,6 +5,7 @@ import avatar from '../images/avatar.png'
 import {signup, chamgeLanguage} from '../api/apiCalls'
 import Input from "../components/Input";
 import {withTranslation} from "react-i18next";
+import ButtonWithProgress from "../components/ButtonWithProgress";
 
 class UserSignupPage extends React.Component{
     state ={
@@ -71,8 +72,7 @@ class UserSignupPage extends React.Component{
                     <Input name="displayName" label={t("Display Name")} error = {displayName} onChange={this.onChange} placeholder={t("Enter Display Name")} type="text"/>
                     <Input name="password" label={t("Password")} error = {password} onChange={this.onChange} placeholder={t("Enter Password")}  type="password"/>
                     <Input name="passwordRepeat" label={t("Password Repeat")} error ={passwordRepeat} onChange={this.onChange} placeholder={t("Enter Password Repeat")}  type="password"/>
-                    <button disabled={pendingApiCall} onClick={this.onClickSignup} type="button" >
-                        {pendingApiCall && <span className="spinner-border spinner-border-sm"></span>}{t('Sign Up')} </button>
+                    <ButtonWithProgress disable ={pendingApiCall} onClick={ this.onClickSignup} pendingApiCall={pendingApiCall} text={t("Sign Up")} />
                 </form>
             </div>
         );

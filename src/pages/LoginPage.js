@@ -2,19 +2,34 @@ import React from 'react';
 import '../css/SignupStyle.css'
 import '../bootstrap-override.scss'
 import avatar from '../images/avatar.png'
-import {login, signup} from '../api/apiCalls'
 import Input from "../components/Input";
 import {withTranslation} from "react-i18next";
+import {login} from "../api/apiCalls";
+import axios from "axios";
+import ButtonWithProgress from "../components/ButtonWithProgress";
 
 class LoginPage extends React.Component{
     state ={
         username:null,
         password:null,
         pendingApiCall:false,
-        errors:{
-
-        }
+        error:null
     };
+
+    componentDidMount() {
+        axios.interceptors.request.use((request)=>{
+            this.setState({pendingApiCall:true});
+            return request;
+        });
+        axios.interceptors.response.use((response)=>{
+            this.setState({pendingApiCall:false});
+            return response;
+        }, (error)=>{
+            this.setState({pendingApiCall:false});
+            throw error;
+        })
+    }
+
     onChange = event =>{
         const {t} = this.props;
         const {name,value}=event.target;
@@ -22,46 +37,48 @@ class LoginPage extends React.Component{
         errors[name]=undefined;
         this.setState({
             [name]:value,
-            errors
+            error:null
+
         });
     }
+
     onClickLogin = async event =>{
         event.preventDefault();
-        const {username,displayName,password} = this.state;
+        const {username,password} = this.state;
         const creds ={
             username,
             password
         };
-        this.setState({pendingApiCall:true});
-        try {
-            const response = await  login(creds);
-        }catch (error){
-            if(error.response.data.validationErrors){
-                this.setState({errors:error.response.data.validationErrors});
-            }
+        this.setState({
+            error:null
+        });
+        try{
+            await login(creds);
+        }catch (apiError){
+            this.setState({
+                error:apiError.response.data.message
+            });
         }
-        this.setState({pendingApiCall:false});
+
+
     }
 
-    render(){
+    render() {
         const {t} = this.props;
-        const {pendingApiCall,errors} = this.state
-        const {username,password} = errors;
-        console.log(username)
+        const {error, username,password,pendingApiCall} = this.state;
+        const buttonEnabled = username && password;
         return(
             <div className="contact-form">
                 <img alt="" className="avatar" src={avatar}/>
                 <h2>{t('Login')}</h2>
                 <form>
-                    <Input name="username" label={t("Username")} error = {username} onChange={this.onChange} placeholder={t("Enter Username")} type="text"/>
-                    <Input name="password" label={t("Password")} error = {password} onChange={this.onChange} placeholder={t("Enter Password")}  type="password"/>
-
-                    <button disabled={pendingApiCall} onClick={this.onClickLogin} type="button" >
-                        {pendingApiCall && <span className="spinner-border spinner-border-sm"></span>}{t('Login')} </button>
+                    <Input name="username" label={t("Username")}  onChange={this.onChange} placeholder={t("Enter Username")} type="text"/>
+                    <Input name="password" label={t("Password")} error = {error} onChange={this.onChange} placeholder={t("Enter Password")}  type="password"/>
+                    <ButtonWithProgress onClick={this.onClickLogin} disabled={pendingApiCall || !buttonEnabled} pendingApiCall={pendingApiCall} text={t('Login')}/>
                 </form>
             </div>
         );
     }
-}//High Order componet
+}
 const UserLoginPageWithTranslation = withTranslation()(LoginPage);
 export default UserLoginPageWithTranslation;

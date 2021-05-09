@@ -10,7 +10,7 @@ import './i18n'
 
 ReactDOM.render(
   <React.StrictMode>
-      <LoginPage />
+      <UserSignupPage />
       <LanguageSelector/>
   </React.StrictMode>,
   document.getElementById('root')
